@@ -1,0 +1,15 @@
+node_modules
+
+# Keep environment variables out of version control
+.env
+.env.keys
+
+/generated/prisma
+
+./src/utils/localUpload.ts
+./src/utils/multerConfig.ts
+
+
+uploads/
+src/utils/localUpload.ts
+src/utils/multerConfig.ts

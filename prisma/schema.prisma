@@ -1,0 +1,207 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  email     String   @id
+  name      String
+  password  String
+  role      Role     @default(Student)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  isVerified Boolean? @default(false)
+
+  profile   StudentProfile? @relation("UserProfile")
+  materials Material[]      @relation("UserMaterials")
+
+  articles    Article[]
+  activities  Activity[]
+  suggestions Suggestion[]
+  givenlikes  Like[]
+}
+
+model StudentProfile {
+  email     String   @id
+  startYear Int?
+  endYear   Int?
+  xpPoints  Int      @default(0)
+  collegeId Int? //FK.
+  courseId  Int? //FK.
+  avatarUrl String? // file URL for profile pic
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  college College? @relation(fields: [collegeId], references: [id])
+  course  Course?  @relation(fields: [courseId], references: [id])
+  student User     @relation("UserProfile", fields: [email], references: [email])
+}
+
+enum Role {
+  Admin
+  Student
+  College
+}
+
+model College {
+  id       Int    @id @default(autoincrement())
+  name     String
+  city     String
+  district String
+  state    String
+
+  students  StudentProfile[]
+  resources Material[]
+  course    Course[]         @relation("CollegeCourses")
+}
+
+model Course {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  students StudentProfile[]
+  college  College[]        @relation("CollegeCourses")
+}
+
+model Help {
+  id        Int        @id @default(autoincrement())
+  fullname  String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime   @default(now())
+  status    HelpStatus @default(Pending)
+}
+
+enum HelpStatus {
+  Pending
+  Reviewed
+}
+
+model Material {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  type        Type
+  subject     String
+  studentId   String
+  collegeId   Int?
+  createdAt   DateTime @default(now())
+
+  uploadedBy User     @relation("UserMaterials", fields: [studentId], references: [email])
+  college    College? @relation(fields: [collegeId], references: [id])
+  files      File[]
+}
+
+enum Type {
+  Notes
+  Assignments
+  Project
+  PYQ
+}
+
+model File {
+  id         Int      @id @default(autoincrement())
+  url        String
+  s3Key      String?
+  originalName  String?
+  contentType   String?
+  materialId Int
+  material   Material @relation(fields: [materialId], references: [id])
+}
+
+model Suggestion {
+  id        Int              @id @default(autoincrement())
+  title     String
+  userId    String
+  message   String
+  status    SuggestionStatus @default(Pending)
+  createdAt DateTime         @default(now())
+
+  suggestedBy User @relation(fields: [userId], references: [email])
+}
+
+enum SuggestionStatus {
+  Pending
+  Reviewed
+  Implemented
+}
+
+model Activity {
+  id        Int      @id @default(autoincrement())
+  action    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  activityOf User @relation(fields: [userId], references: [email])
+}
+
+model Article {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String // stores HTML from editor
+  thumbnail String? // optional cover image
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User   @relation(fields: [authorId], references: [email])
+  tags   Tag[]
+  likes  Like[]
+}
+
+model Tag {
+  id        Int    @id @default(autoincrement())
+  articleId Int //FK
+  tagName   String
+
+  tagOf Article? @relation(fields: [articleId], references: [id])
+}
+
+model Like {
+  id        Int    @id @default(autoincrement())
+  articleId Int
+  userId    String
+
+  likeOf Article @relation(fields: [articleId], references: [id])
+  likeBy User    @relation(fields: [userId], references: [email])
+}
+
+model Challenge {
+  id          Int               @id @default(autoincrement())
+  title       String
+  category    ChallengeCategory
+  description String
+  xpReward    Int
+  createdAt   DateTime          @default(now())
+
+  launch   DateTime?
+  deadline DateTime?
+}
+
+enum ChallengeCategory {
+  Coding
+  Quiz
+  Project
+}
+
+model VerifyEmail {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  otp        String
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  isVerified Boolean  @default(false)
+}
