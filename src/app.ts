@@ -1,67 +1,50 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import prisma from "./config/db";
 import cookieParser from "cookie-parser";
-import path from "path";
+import prisma from "./config/db";
+import { Request, Response } from "express";
+import router from "./router/route"
 
+const PORT = process.env.PORT || 5000;
 
 dotenv.config();
 const app = express();
-app.use(cookieParser());
-app.use(express.json());
 
 // Global middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || "*", // update later with frontend URL
+  origin: [
+    process.env.CLIENT_URL!, //real frontend url
+    "http://localhost:3000"
+  ], // update later with frontend URL
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
 }));
 
-// Serve uploaded files statically
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+//Body parsers with increased limits
+app.use(cookieParser());
+app.use(express.json({ limit: "30mb" }));
+app.use(express.urlencoded({ extended: true, limit: "30mb" }));
+app.use("/api",router)
 
-//Importing Routes
-import { verifyToken, requireRole} from "./middlewares/auth.middleware";
-import studentController from "./controllers/student.controller"
-import authRoutes from "./controllers/auth.controller";
+// app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-
-// Routes
-app.use("/api/auth", authRoutes);  //register,login,logout
-app.use("/api/student",verifyToken,requireRole("Student"),studentController); //all student routes
-
-
-app.get("/", async (req, res) => {
+app.get(["/","/api"], async (req:Request, res:Response) => {
   res.send("🚀 SkillHub Backend API is Running!");
 });
 
-app.post("/api/contact", async (req, res) => {
-  try {
-    const {fullname, email, subject, message } = req.body;
-    const help = await prisma.help.create({
-         data: { fullname, email, subject, message },
-    });
-
-    res.status(201).json({ message: "Form Submitted Successfully.", help });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server Error" });
-  }
-});
 
 // ⚠️ ERROR HANDLER (Basic)
 app.use((err: any, req: any, res: any, next: any) => {
   console.error("Error:", err.message);
-  res.status(500).json({ error: "Internal Server Error" });
+  res.status(500).json({ error: "Internal Server Error", errorMessage:err});
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, async () => {
+app.listen(Number(PORT), async () => {
   try {
     await prisma.$connect();
-    console.log(`✅ Connected to MySQL`);
-    console.log(`🌐 Server running on http://localhost:${PORT}`);
+    console.log(`✅ Connected to PostgreSQL`);
+    console.log(`🌐 Server running on ${process.env.CLIENT_URL}:${PORT}`);
   } catch (error) {
     console.error("❌ Database connection failed", error);
   }

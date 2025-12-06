@@ -1,15 +1,21 @@
 node_modules
+package-lock.json
 
+dist/
 # Keep environment variables out of version control
 .env
 .env.keys
 
 /generated/prisma
 
-./src/utils/localUpload.ts
-./src/utils/multerConfig.ts
-
 
 uploads/
 src/utils/localUpload.ts
-src/utils/multerConfig.ts
+src/utils/multerLocal.ts
+src/utils/email.ts
+src/utils/PREMIUM_EMAIL_TEMPLATE.ts
+
+
+application.log
+.env.production
+lambda.ts

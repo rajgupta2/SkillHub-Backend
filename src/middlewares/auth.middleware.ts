@@ -10,18 +10,17 @@ export interface AuthRequest extends Request {
 }
 
 export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction) => {
-
-  const token = req.cookies.token; // ⬅️ Get token from HTTP-only cookie
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized: No token in cookies" });
-  }
-
   try {
+    const token=req.headers.authorization?.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: No token in header." });
+    }
+
     const decoded = jwt.verify(token, JWT_SECRET) as { email: string; role: string };
     req.user = decoded;
     next();
   } catch (error) {
-    return res.status(403).json({ message: "Invalid or expired token" });
+    return res.status(403).json({ message: "Invalid or expired token",error });
   }
 };
 

@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es2020",
     "module": "commonjs",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
     "rootDir": ".",
     "outDir": "./dist",
     "strict": true,
@@ -11,7 +13,10 @@
     "resolveJsonModule": true,
     "isolatedModules": false,
     //"allowImportingTsExtensions":true,
+    //"noImplicitAny": true,
+    "sourceMap": true,  //it will use to generates .js.map files
+    "baseUrl": "./",
   },
-  "include": ["src","generated/prisma"],
+  "include": ["src","generated/prisma","prisma/schema.prisma","prisma.config.ts"],
   "exclude": ["node_modules"]
 }

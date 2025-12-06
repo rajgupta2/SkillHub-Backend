@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client"
+  binaryTargets= ["native", "rhel-openssl-3.0.x"]
   output   = "../generated/prisma"
 }
 
@@ -23,6 +24,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   isVerified Boolean? @default(false)
+  xpPoints  Int       @default(0)
 
   profile   StudentProfile? @relation("UserProfile")
   materials Material[]      @relation("UserMaterials")
@@ -37,7 +39,6 @@ model StudentProfile {
   email     String   @id
   startYear Int?
   endYear   Int?
-  xpPoints  Int      @default(0)
   collegeId Int? //FK.
   courseId  Int? //FK.
   avatarUrl String? // file URL for profile pic
@@ -63,7 +64,6 @@ model College {
   state    String
 
   students  StudentProfile[]
-  resources Material[]
   course    Course[]         @relation("CollegeCourses")
 }
 
@@ -97,11 +97,9 @@ model Material {
   type        Type
   subject     String
   studentId   String
-  collegeId   Int?
   createdAt   DateTime @default(now())
 
-  uploadedBy User     @relation("UserMaterials", fields: [studentId], references: [email])
-  college    College? @relation(fields: [collegeId], references: [id])
+  uploadedBy  User     @relation("UserMaterials", fields: [studentId], references: [email])
   files      File[]
 }
 
@@ -114,12 +112,12 @@ enum Type {
 
 model File {
   id         Int      @id @default(autoincrement())
+  s3Key      String
   url        String
-  s3Key      String?
   originalName  String?
   contentType   String?
   materialId Int
-  material   Material @relation(fields: [materialId], references: [id])
+  material   Material @relation(fields: [materialId], references: [id],onDelete: Cascade)
 }
 
 model Suggestion {
@@ -151,7 +149,8 @@ model Activity {
 model Article {
   id        Int      @id @default(autoincrement())
   title     String
-  content   String // stores HTML from editor
+  content   String   @db.Text  // stores HTML from editor
+  contentMd String   @db.Text //stores markdown
   thumbnail String? // optional cover image
   authorId  String
   createdAt DateTime @default(now())

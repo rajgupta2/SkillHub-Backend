@@ -1,18 +1,16 @@
-import express from "express";
-import prisma from "../../config/db";
-import { AuthRequest } from "../../middlewares/auth.middleware";
+import { Response } from "express";
+import prisma from "../config/db";
+import { AuthRequest } from "../middlewares/auth.middleware";
 
-const college_peers=express.Router();
-
-college_peers.get("/",  async (req:AuthRequest, res) => {
-  try {
+export const getCollegePeers=async (req:AuthRequest, res:Response)=>{
+    try {
     const student = await prisma.user.findUnique({
       where: { email: req.user!.email },
-      include: { profile: true },
+      select: { profile:{ select:{ collegeId:true} } },
     });
 
     if (!student || !student.profile?.collegeId) {
-      return res.status(404).json({ message: "Student or college not found" });
+      return res.status(404).json({ message: "You don't registerd your college yet." });
     }
 
     const peers = await prisma.user.findMany({
@@ -39,6 +37,4 @@ college_peers.get("/",  async (req:AuthRequest, res) => {
     console.error("Error fetching peers:", error);
     res.status(500).json({ message: "Server error fetching peers" });
   }
-});
-
-export default college_peers;
+}
