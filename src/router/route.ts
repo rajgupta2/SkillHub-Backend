@@ -10,6 +10,7 @@ import { dashboardStats, getProfile, updateProfile } from "../controllers/profil
 import { deleteSuggestionById, getSuggestions, postSuggestion, updateStatus_Suggestion, updateSuggestionById } from "../controllers/suggestions";
 import { login, sendEmail, verifyOTP } from "../controllers/auth";
 import { getContacts, getContactsById, postContact } from "../controllers/contact";
+import { getAuthUserCollege, getCollegeById } from "../controllers/college";
 
 
 const router = express.Router();
@@ -68,5 +69,9 @@ router.get("/dashboard-stats",verifyToken,requireRole("Student"),dashboardStats)
 router.get("/contact",verifyToken,requireRole("Admin"),getContacts);
 router.get("/contact/:id",verifyToken,requireRole("Admin"),getContactsById);
 router.post("/contact",postContact);
+
+//college route
+router.get("/college",verifyToken,requireRole("Student"),getAuthUserCollege);
+router.get("/college/:id",getCollegeById);
 
 export default router;
