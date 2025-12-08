@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import prisma from "./config/db";
 import { Request, Response } from "express";
 import router from "./router/route"
+import { verifyOrigin } from "./middlewares/auth.middleware";
 
 const PORT = process.env.PORT || 5000;
 
@@ -25,7 +26,7 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json({ limit: "30mb" }));
 app.use(express.urlencoded({ extended: true, limit: "30mb" }));
-app.use("/api",router)
+app.use("/api",verifyOrigin,router)
 
 // app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 

@@ -38,3 +38,22 @@ export const requireRole = (role: string) => {
     next();
   };
 };
+
+export const verifyOrigin=(req:Request, res:Response, next:NextFunction) => {
+  const allowed = [
+    process.env.CLIENT_URL,
+    "http://localhost:3000",
+  ];
+
+  const origin = req.headers.origin;
+
+  if (!origin) {
+    return res.status(403).json({ error: "Origin missing. Access denied." });
+  }
+
+  if (origin && !allowed.includes(origin)) {
+    return res.status(403).json({ error: "Forbidden origin." });
+  }
+
+  next();
+}
