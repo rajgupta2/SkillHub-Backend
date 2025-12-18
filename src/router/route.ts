@@ -11,6 +11,7 @@ import { deleteSuggestionById, getSuggestions, postSuggestion, updateStatus_Sugg
 import { login, sendEmail, verifyOTP } from "../controllers/auth";
 import { getContacts, getContactsById, postContact } from "../controllers/contact";
 import { getAuthUserCollege, getCollegeById } from "../controllers/college";
+import { deleteCourseById, getCourse, getCourseById, getCourseByLinkId, postCourse, updateCourseById } from "../controllers/course";
 
 
 const router = express.Router();
@@ -73,5 +74,15 @@ router.post("/contact",postContact);
 //college route
 router.get("/college",verifyToken,requireRole("Student"),getAuthUserCollege);
 router.get("/college/:id",getCollegeById);
+
+//course route
+router.get("/courses",getCourse);
+router.post("/courses",verifyToken,postCourse);
+
+router.get("/courses/:id",getCourseById);
+router.get("/courses/:id/:linkId",getCourseByLinkId);
+router.put("/courses/:id",verifyToken,updateCourseById)
+router.delete("/courses/:id",verifyToken,deleteCourseById);
+
 
 export default router;
