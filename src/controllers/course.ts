@@ -52,6 +52,45 @@ export const postCourse= async (req:AuthRequest, res:Response) => {
   }
 }
 
+export const postCourseByLinkId= async (req:AuthRequest, res:Response) => {
+  await connectDB();
+  try {
+    const { courseId, linkId } = req.params;
+    const { title,content } = req.body;
+
+    if (!courseId || !linkId) {
+      return res.status(400).json({ error: "Invalid params" });
+    }
+
+    const course = await Course.findOne({
+      _id: courseId,
+      "owner.email": req.user!.email,
+    });
+
+    if (!course) {
+      return res.status(404).json({ error: "Course not found or unauthorized" });
+    }
+
+    const link = {
+      linkId,
+      title,
+      order: course.links.length + 1,
+      content
+    }
+
+    course.links.push(link);
+    course.markModified("links");
+    await course.save();
+    return res.status(201).json({
+      created: true,
+      course,
+    });
+  } catch (error) {
+    console.error("Publish failed", error);
+    res.status(500).json({ error: "Publish failed" });
+  }
+}
+
 export const getCourseById= async (req:AuthRequest, res:Response) => {
   await connectDB();
   const course = await Course.findById(req.params.id);
@@ -119,3 +158,42 @@ export const deleteCourseById=async (req:AuthRequest, res:Response) => {
   await course.deleteOne();
   res.json({ deleted: true });
 }
+
+export const updateCourseByLinkId = async (req: AuthRequest,res: Response) => {
+  await connectDB();
+
+  try {
+    const { courseId, linkId } = req.params;
+    const { content } = req.body;
+
+    if (!courseId || !linkId) {
+      return res.status(400).json({ error: "Invalid params" });
+    }
+
+    const course = await Course.findOne({
+      _id: courseId,
+      "owner.email": req.user!.email,
+    });
+
+    if (!course) {
+      return res.status(404).json({ error: "Course not found or unauthorized" });
+    }
+
+    const link = course.links.find(l => l.linkId === linkId);
+
+    if (!link) {
+      return res.status(404).json({ error: "Link not found" });
+    }
+
+    link.content = content;
+    course.markModified("links");
+    await course.save();
+    return res.json({
+      updated: true,
+      link,
+    });
+  } catch (error) {
+    console.error("Link update failed", error);
+    return res.status(500).json({ error: "Link update failed" });
+  }
+};
