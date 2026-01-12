@@ -8,7 +8,7 @@ export const getCourse= async (req:AuthRequest, res:Response) => {
   await connectDB();
   const courses = await Course.find()
     .sort({ createdAt: -1 })
-    .select("-links.content"); // optional: preview only
+    .select("-links.content -owner.email"); // optional: preview only
 
   res.json(courses);
 }
@@ -93,7 +93,7 @@ export const postCourseByLinkId= async (req:AuthRequest, res:Response) => {
 
 export const getCourseById= async (req:AuthRequest, res:Response) => {
   await connectDB();
-  const course = await Course.findById(req.params.id);
+  const course = await Course.findById(req.params.id).select("-owner.email");
 
   if (!course) {
     return res.status(404).json({ error: "Course not found" });
@@ -104,7 +104,7 @@ export const getCourseById= async (req:AuthRequest, res:Response) => {
 
 export const getCourseByLinkId= async (req:AuthRequest, res:Response) => {
   await connectDB();
-  const course = await Course.findById(req.params.id);
+  const course = await Course.findById(req.params.id).select("-owner.email");
 
   if (!course) {
     return res.status(404).json({ error: "Course not found" });
