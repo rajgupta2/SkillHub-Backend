@@ -3,6 +3,12 @@ import Course from "./course-schema";
 import { Response } from "express";
 import prisma from "../config/db";
 import { connectDB } from "../config/mongoDB";
+import slugify from "slugify";
+import { nanoid } from "nanoid";
+
+function generateCourseSlug(title: string) {
+  return `${slugify(title, { lower: true })}--${nanoid(6)}`;
+}
 
 export const getCourse= async (req:AuthRequest, res:Response) => {
   await connectDB();
@@ -40,6 +46,7 @@ export const postCourse= async (req:AuthRequest, res:Response) => {
     const course = await Course.create({
       title,
       description,
+      slug:generateCourseSlug(title),
       links,
       owner,
       status: "published",
@@ -100,6 +107,17 @@ export const getCourseById= async (req:AuthRequest, res:Response) => {
   }
 
   res.json(course);
+}
+
+export const getCourseBySlug= async (req:AuthRequest, res:Response) => {
+  await connectDB();
+  const course = await Course.findOne({slug:req.params.slug}).select("-owner.email");
+
+  if (!course) {
+    return res.status(404).json({ error: "Course not found" });
+  }
+
+  return res.status(200).json(course);
 }
 
 export const getCourseByLinkId= async (req:AuthRequest, res:Response) => {
@@ -186,6 +204,48 @@ export const updateCourseByLinkId = async (req: AuthRequest,res: Response) => {
     }
 
     link.content = content;
+    course.markModified("links");
+    await course.save();
+    return res.json({
+      updated: true,
+      link,
+    });
+  } catch (error) {
+    console.error("Link update failed", error);
+    return res.status(500).json({ error: "Link update failed" });
+  }
+};
+
+export const updateCourseBySlugLinkId = async (req: AuthRequest,res: Response) => {
+  await connectDB();
+
+  try {
+    const { courseSlug, linkSlug } = req.params;
+    const { updateLink } = req.body;
+    if (!courseSlug || !linkSlug) {
+      return res.status(400).json({ error: "Invalid params" });
+    }
+
+    const course = await Course.findOne({
+      slug: courseSlug,
+      "owner.email": req.user!.email,
+    });
+
+    if (!course) {
+      return res.status(404).json({ error: "Course not found or unauthorized" });
+    }
+
+    const link = course.links.find(l => l.linkId === updateLink.linkId);
+
+    if (!link) {
+      course.links.push(updateLink);
+    }else{
+      course.links=course.links.filter((l)=>{
+        if(l.linkId === updateLink.linkId)
+         l.content = updateLink.content;
+        return l;
+      });
+    }
     course.markModified("links");
     await course.save();
     return res.json({

@@ -4,6 +4,8 @@ export interface CourseDocument extends Document {
   title: string;
   description?: string;
 
+  slug: string,
+
   links: {
     linkId: string;
     title: string;
@@ -26,7 +28,7 @@ const CourseSchema = new Schema<CourseDocument>(
   {
     title: { type: String, required: true },
     description: String,
-
+    slug: { type: String, required: true, unique: true, index: true },
     links: [
       {
         linkId: String,
@@ -38,7 +40,7 @@ const CourseSchema = new Schema<CourseDocument>(
 
     owner: {
       name: { type: String, required: true },
-      email: { type: String, required: true, index: true },
+      email: { type: String, required: true},
     },
 
     status: {
