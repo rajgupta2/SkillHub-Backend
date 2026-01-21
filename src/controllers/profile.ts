@@ -53,7 +53,7 @@ export const dashboardStats= async (req: AuthRequest, res:Response) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     //calculate district rank
-    const rank= await calculateRank(user.profile!.college?.district,email);
+    const rank= await calculateRank(user.profile?.college?.district,email);
 
     res.status(200).json({
        name: user.name,
@@ -63,7 +63,7 @@ export const dashboardStats= async (req: AuthRequest, res:Response) => {
        rank:rank
      });
   } catch (error) {
-      res.status(500).json({ message: "Failed to fetch profile",error });
+      res.status(500).json({ message: "Failed to fetch profile",  error});
   }
 }
 
@@ -93,7 +93,7 @@ export const getProfile=async (req: AuthRequest, res:Response) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     //calculate district rank
-    const rank= await calculateRank(user.profile!.college?.district,email);
+    const rank= await calculateRank(user.profile?.college?.district,email);
 
     res.status(200).json({
        name: user.name,
