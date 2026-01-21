@@ -10,7 +10,7 @@ import { dashboardStats, getProfile, updateProfile } from "../controllers/profil
 import { deleteSuggestionById, getSuggestions, postSuggestion, updateStatus_Suggestion, updateSuggestionById } from "../controllers/suggestions";
 import { login, sendEmail, verifyOTP } from "../controllers/auth";
 import { getContacts, getContactsById, postContact } from "../controllers/contact";
-import { getAuthUserCollege, getCollegeById } from "../controllers/college";
+import { getAllCollegeCourses, getAllColleges, getAuthUserCollege, getCollegeById } from "../controllers/college";
 import { deleteCourseById, getCourse, getCourseById, getCourseByLinkId, getCourseBySlug, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course";
 
 
@@ -72,10 +72,13 @@ router.get("/contact/:id",verifyToken,requireRole("Admin"),getContactsById);
 router.post("/contact",postContact);
 
 //college route
+router.get("/colleges",getAllColleges);
 router.get("/college",verifyToken,requireRole("Student"),getAuthUserCollege);
 router.get("/college/:id",getCollegeById);
+router.get("/colleges-courses",getAllCollegeCourses);
 
-//course route
+
+//Tutorial route
 router.get("/courses",getCourse);
 router.post("/courses",verifyToken,postCourse);
 router.post("/courses/:courseId/:linkId",verifyToken,postCourseByLinkId);

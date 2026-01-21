@@ -134,35 +134,35 @@ export const updateProfile=async (req: AuthRequest, res:Response) => {
       endYear,
     } = req.body.profile;
 
-    // Create or update College
-    const NewCollege = await prisma.college.upsert({
-      where: { id: Number(college_id) || 0 }, // 0 will never match any record
-      create: {
-        name: college,
-        city: college_city,
-        district: college_district,
-        state: college_state,
-      },
-      update: {
-        name: college,
-        city: college_city,
-        district: college_district,
-        state: college_state,
-      },
-    });
+    let finalCollegeId: number;
+    if (college_id) {
+      // Existing college – just use it
+      finalCollegeId = Number(college_id);
+    } else {
+      // New college – create it
+      const newCollege = await prisma.college.create({
+        data: {
+          name: college,
+          city: college_city,
+          district: college_district,
+          state: college_state,
+        },
+      });
 
-    // Create or update Course
-    const NewCourse=await prisma.course.upsert({
-      where:{
-        id: Number(course_id) || 0
-      },
-      create:{
-        name: course
-      },
-      update:{
-        name: course
-      }
-    });
+      finalCollegeId = newCollege.id;
+    }
+
+    let finalCourseId;
+    if(course_id) finalCourseId=Number(course_id);
+    else{
+      const NewCourse=await prisma.course.create({
+        data:{
+          name: course
+        }
+      });
+      finalCourseId=Number(course_id);
+    }
+
 
     // Update User and StudentProfile
     const updated = await prisma.user.update({
@@ -174,14 +174,14 @@ export const updateProfile=async (req: AuthRequest, res:Response) => {
             create: {
               startYear:parseInt(startYear),
               endYear:parseInt(endYear),
-              college: { connect: { id: NewCollege.id } },
-              course: { connect: { id: NewCourse.id } },
+              college: { connect: { id: finalCollegeId } },
+              course: { connect: { id: finalCourseId } },
             },
             update: {
               startYear:parseInt(startYear),
               endYear:parseInt(endYear),
-              college: { connect: { id: NewCollege.id } },
-              course: { connect: { id: NewCourse.id } },
+              college: { connect: { id: finalCollegeId } },
+              course: { connect: { id: finalCourseId } },
             },
           },
         },

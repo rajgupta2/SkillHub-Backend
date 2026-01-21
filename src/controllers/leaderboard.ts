@@ -50,7 +50,8 @@ export const leaderBoard=async (req:AuthRequest, res:Response) => {
       where: {
         profile: {
           college: {
-            district:district
+            district:district,
+            state:state
           },
         },
       },
