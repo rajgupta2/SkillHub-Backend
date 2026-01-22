@@ -64,3 +64,35 @@ export const getAuthUserCollege=async (req: AuthRequest, res:Response) => {
   }
 }
 
+export const deleteCollegeById=async (req: Request, res:Response) => {
+  try {
+
+    const college=await prisma.college.delete({
+        where:{
+            id:Number(req.params.id)
+        }
+    })
+    college
+        ?  res.status(200).json({college,message:"College deleted Successfully."})
+        : res.status(400).json({message:"College Not Found."});
+
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete college.",error });
+  }
+}
+
+export const deleteCollegeCourseById=async (req: Request, res:Response) => {
+  try {
+    const course=await prisma.course.delete({
+        where:{
+            id:Number(req.params.id)
+        }
+    })
+    course
+        ?  res.status(200).json({course,message:"Course deleted Successfully."})
+        : res.status(400).json({message:"Course Not Found."});
+
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete course.",error });
+  }
+}

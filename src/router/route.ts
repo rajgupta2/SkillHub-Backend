@@ -8,9 +8,9 @@ import {leaderBoard } from "../controllers/leaderboard";
 import { uploadS3 } from "../utils/multerS3";
 import { dashboardStats, getProfile, updateProfile } from "../controllers/profile";
 import { deleteSuggestionById, getSuggestions, postSuggestion, updateStatus_Suggestion, updateSuggestionById } from "../controllers/suggestions";
-import { login, sendEmail, verifyOTP } from "../controllers/auth";
+import { login, register, verifyOTP } from "../controllers/auth";
 import { getContacts, getContactsById, postContact } from "../controllers/contact";
-import { getAllCollegeCourses, getAllColleges, getAuthUserCollege, getCollegeById } from "../controllers/college";
+import { deleteCollegeById, deleteCollegeCourseById, getAllCollegeCourses, getAllColleges, getAuthUserCollege, getCollegeById } from "../controllers/college";
 import { deleteCourseById, getCourse, getCourseById, getCourseByLinkId, getCourseBySlug, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course";
 
 
@@ -59,7 +59,7 @@ router.delete("/material/:id",verifyToken,requireRole("Student"),deleteSuggestio
 
 
 //register login route
-router.post(["/send-email","/register"],sendEmail);
+router.post(["/send-email","/register"],register);
 router.post("/verify-otp",verifyOTP); //verifyOTP and Create a User.
 router.post("/login",login)
 
@@ -75,8 +75,10 @@ router.post("/contact",postContact);
 router.get("/colleges",getAllColleges);
 router.get("/college",verifyToken,requireRole("Student"),getAuthUserCollege);
 router.get("/college/:id",getCollegeById);
-router.get("/colleges-courses",getAllCollegeCourses);
+router.delete("/college/:id",verifyToken,requireRole("Admin"),deleteCollegeById);
 
+router.get("/colleges-courses",getAllCollegeCourses);
+router.delete("/college-course/:id",verifyToken,requireRole("Admin"),deleteCollegeCourseById);
 
 //Tutorial route
 router.get("/courses",getCourse);
