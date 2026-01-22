@@ -6,6 +6,7 @@ import prisma from "./config/db";
 import { Request, Response } from "express";
 import router from "./router/route"
 import { verifyOrigin } from "./middlewares/auth.middleware";
+import { connectDB } from "./config/mongoDB";
 
 const PORT = process.env.PORT || 5000;
 
@@ -44,7 +45,8 @@ app.use((err: any, req: any, res: any, next: any) => {
 app.listen(Number(PORT), async () => {
   try {
     await prisma.$connect();
-    console.log(`✅ Connected to PostgreSQL`);
+    await connectDB();
+    console.log(`✅ Connected to PostgreSQL and mongodb`);
     console.log(`🌐 Server running on ${process.env.CLIENT_URL}:${PORT}`);
   } catch (error) {
     console.error("❌ Database connection failed", error);

@@ -2,7 +2,6 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 import Course from "./course-schema";
 import { Response } from "express";
 import prisma from "../config/db";
-import { connectDB } from "../config/mongoDB";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 
@@ -11,7 +10,6 @@ function generateCourseSlug(title: string) {
 }
 
 export const getCourse= async (req:AuthRequest, res:Response) => {
-  await connectDB();
   const courses = await Course.find()
     .sort({ createdAt: -1 })
     .select("-links.content -owner.email"); // optional: preview only
@@ -20,7 +18,6 @@ export const getCourse= async (req:AuthRequest, res:Response) => {
 }
 
 export const postCourse= async (req:AuthRequest, res:Response) => {
-  await connectDB();
   try {
     const { title, description, links } = req.body;
 
@@ -60,7 +57,6 @@ export const postCourse= async (req:AuthRequest, res:Response) => {
 }
 
 export const postCourseByLinkId= async (req:AuthRequest, res:Response) => {
-  await connectDB();
   try {
     const { courseId, linkId } = req.params;
     const { title,content } = req.body;
@@ -99,7 +95,6 @@ export const postCourseByLinkId= async (req:AuthRequest, res:Response) => {
 }
 
 export const getCourseById= async (req:AuthRequest, res:Response) => {
-  await connectDB();
   const course = await Course.findById(req.params.id).select("-owner.email");
 
   if (!course) {
@@ -110,7 +105,6 @@ export const getCourseById= async (req:AuthRequest, res:Response) => {
 }
 
 export const getCourseBySlug= async (req:AuthRequest, res:Response) => {
-  await connectDB();
   const course = await Course.findOne({slug:req.params.slug}).select("-owner.email");
 
   if (!course) {
@@ -121,7 +115,6 @@ export const getCourseBySlug= async (req:AuthRequest, res:Response) => {
 }
 
 export const getCourseByLinkId= async (req:AuthRequest, res:Response) => {
-  await connectDB();
   const course = await Course.findById(req.params.id).select("-owner.email");
 
   if (!course) {
@@ -141,7 +134,6 @@ export const getCourseByLinkId= async (req:AuthRequest, res:Response) => {
 }
 
 export const updateCourseById= async (req:AuthRequest, res:Response) => {
-  await connectDB();
   const course = await Course.findById(req.params.id);
 
   if (!course) {
@@ -162,7 +154,6 @@ export const updateCourseById= async (req:AuthRequest, res:Response) => {
 }
 
 export const deleteCourseById=async (req:AuthRequest, res:Response) => {
-  await connectDB();
   const course = await Course.findById(req.params.id);
 
   if (!course) {
@@ -178,7 +169,6 @@ export const deleteCourseById=async (req:AuthRequest, res:Response) => {
 }
 
 export const updateCourseByLinkId = async (req: AuthRequest,res: Response) => {
-  await connectDB();
 
   try {
     const { courseId, linkId } = req.params;
@@ -217,7 +207,6 @@ export const updateCourseByLinkId = async (req: AuthRequest,res: Response) => {
 };
 
 export const updateCourseBySlugLinkId = async (req: AuthRequest,res: Response) => {
-  await connectDB();
 
   try {
     const { courseSlug, linkSlug } = req.params;
