@@ -9,6 +9,14 @@ function generateCourseSlug(title: string) {
   return `${slugify(title, { lower: true })}--${nanoid(6)}`;
 }
 
+export const isCourseOwner= async (req:AuthRequest, res:Response) => {
+  const course = await Course.findOne({
+      slug:req.params.courseSlug
+  });
+  if(!course || course.owner.email !== req.user?.email) return res.json({isOwner:false});
+  return res.json({isOwner:true});
+}
+
 export const getCourse= async (req:AuthRequest, res:Response) => {
   const courses = await Course.find()
     .sort({ createdAt: -1 })
