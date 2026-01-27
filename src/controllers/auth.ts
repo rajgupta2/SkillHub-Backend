@@ -3,7 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import prisma from "../config/db";
 import {sendEmail} from "../utils/email"
-import { PREMIUM_EMAIL_TEMPLATE } from "../utils/PREMIUM_EMAIL_TEMPLATE.js";
+import { PREMIUM_EMAIL_TEMPLATE } from "../utils/PREMIUM_EMAIL_TEMPLATE";
 
 const JWT_SECRET=process.env.JWT_SECRET!;
 const salt = bcrypt.genSaltSync(10);

@@ -9,6 +9,12 @@ function generateCourseSlug(title: string) {
   return `${slugify(title, { lower: true })}--${nanoid(6)}`;
 }
 
+function generateLinkSlug(title: string) {
+  if(!title) return;
+  title=title.trim();
+  return `${slugify(title, { lower: true })}`;
+}
+
 export const isCourseOwner= async (req:AuthRequest, res:Response) => {
   const course = await Course.findOne({
       slug:req.params.courseSlug
@@ -132,6 +138,25 @@ export const getCourseByLinkId= async (req:AuthRequest, res:Response) => {
 
   const link = course.links.find(
     (l) => l.linkId === linkId
+  );
+
+  if (!link) {
+    return res.status(404).json({ error: "Link not found" });
+  }
+
+  return res.json(link);
+}
+
+export const getCourseByLinkSlug= async (req:AuthRequest, res:Response) => {
+  const course = await Course.findOne({slug:req.params.courseSlug}).select("-owner.email");
+
+  if (!course) {
+    return res.status(404).json({ error: "Course not found" });
+  }
+  const linkSlug=req.params.linkSlug;
+
+  const link = course.links.find(
+    (l) => generateLinkSlug(l.title) === linkSlug
   );
 
   if (!link) {

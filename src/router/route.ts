@@ -11,7 +11,7 @@ import { deleteSuggestionById, getSuggestions, postSuggestion, updateStatus_Sugg
 import { login, register, verifyOTP } from "../controllers/auth";
 import { getContacts, getContactsById, postContact } from "../controllers/contact";
 import { deleteCollegeById, deleteCollegeCourseById, getAllCollegeCourses, getAllColleges, getAuthUserCollege, getCollegeById } from "../controllers/college";
-import { deleteCourseById, getCourse, getCourseById, getCourseByLinkId, getCourseBySlug, isCourseOwner, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course";
+import { deleteCourseById, getCourse, getCourseById, getCourseByLinkId, getCourseByLinkSlug, getCourseBySlug, isCourseOwner, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course";
 
 
 const router = express.Router();
@@ -89,6 +89,7 @@ router.get("/iscourseowner/:courseSlug",verifyToken,isCourseOwner);
 router.get("/courses/:id",getCourseById);
 router.get("/courses/slug/:slug",getCourseBySlug);
 router.get("/courses/:id/:linkId",getCourseByLinkId);
+router.get("/courses/slug/:courseSlug/:linkSlug",getCourseByLinkSlug);
 router.put("/courses/:id",verifyToken,updateCourseById);
 router.put("/courses/:courseId/:linkId",verifyToken,updateCourseByLinkId);
 router.put("/courses/slug/:courseSlug/:linkSlug",verifyToken,updateCourseBySlugLinkId);
