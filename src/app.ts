@@ -20,6 +20,10 @@ app.use(cors({
     "http://localhost:3000"
   ], // update later with frontend URL
   methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization"
+  ],
   credentials: true,
 }));
 
