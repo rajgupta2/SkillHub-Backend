@@ -147,26 +147,37 @@ model Activity {
 }
 
 model Article {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String   @db.Text  // stores HTML from editor
-  contentMd String   @db.Text //stores markdown
-  thumbnail String? // optional cover image
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  contentHtml String   @db.Text   // rendered HTML for SEO
+  contentJson Json                // BlockNote output (source of truth)
 
-  author User   @relation(fields: [authorId], references: [email])
-  tags   Tag[]
-  likes  Like[]
+  // SEO (IMPORTANT)
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+  noIndex         Boolean  @default(false)
+
+  // Classification
+  type            ArticleType
+  isPublished     Boolean  @default(false)
+
+  // Relations
+  authorId        String
+  author          User   @relation(fields: [authorId], references: [email])
+  tags            String
+  likes           Like[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-model Tag {
-  id        Int    @id @default(autoincrement())
-  articleId Int //FK
-  tagName   String
-
-  tagOf Article? @relation(fields: [articleId], references: [id])
+enum ArticleType {
+  BLOG
+  TUTORIAL    //one page tutorial
+  EXAM        //exam-oriented and interview oriented
+  GUIDE
 }
 
 model Like {

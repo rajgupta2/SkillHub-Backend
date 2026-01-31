@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteArticleById, getArticles, getArticlesById, postArticle, updateArticle } from "../controllers/articles";
+import { deleteArticleById, getAllArticles, getArticleBySlug, getArticleByStudentZone, getArticles, postArticle, updateArticle } from "../controllers/articles";
 import {upload} from "../utils/multer";
 import { requireRole, verifyToken } from "../middlewares/auth.middleware";
 import { deleteMaterialById, getCollegeResources, getMaterials, getMaterialsById, postMaterial, recentContribution, updateMaterialsById } from "../controllers/materials";
@@ -18,24 +18,26 @@ const router = express.Router();
 
 //article routes
 router.get("/article",getArticles);
-router.post("/article",verifyToken,requireRole("Student"),upload.single("thumbnail"),postArticle);
+router.get("/article/slug/:slug",getArticleBySlug);
+router.get("/student/article/:slug",verifyToken,getArticleByStudentZone);
+router.get("/student/article",verifyToken,getAllArticles);
+router.post("/article",verifyToken,postArticle);
 
-router.get("/article/:id",getArticlesById);
-router.put("/article/:id",verifyToken,requireRole("Student"),updateArticle)
-router.delete("/article/:id",verifyToken,requireRole("Student"),deleteArticleById);
+router.put("/article/:id",verifyToken,updateArticle)
+router.delete("/article/:id",verifyToken,deleteArticleById);
 
 //college peers route
-router.get("/college-peers",verifyToken,requireRole("Student"),getCollegePeers)
+router.get("/college-peers",verifyToken,getCollegePeers)
 
 //materials routes
 router.get("/material",getMaterials);
-router.post("/material",verifyToken,requireRole("Student"),uploadS3.array("files",5),postMaterial);
-router.get("/recent-contribution",verifyToken,requireRole("Student"),recentContribution);
+router.post("/material",verifyToken,uploadS3.array("files",5),postMaterial);
+router.get("/recent-contribution",verifyToken,recentContribution);
 router.get("/college-resources",verifyToken,requireRole("Student"),getCollegeResources);
 
 router.get("/material/:id",getMaterialsById);
-router.put("/material/:id",verifyToken,requireRole("Student"),updateMaterialsById)
-router.delete("/material/:id",verifyToken,requireRole("Student"),deleteMaterialById);
+router.put("/material/:id",verifyToken,updateMaterialsById)
+router.delete("/material/:id",verifyToken,deleteMaterialById);
 
 
 //leaderboard route
@@ -44,7 +46,7 @@ router.get("/leaderboard",verifyToken,requireRole("Student"),leaderBoard);
 //profile route
 router.get("/profile",verifyToken,getProfile);
 router.get("/profile/:email",verifyToken,getProfile);
-router.put("/profile",verifyToken,requireRole("Student"),updateProfile);
+router.put("/profile",verifyToken,updateProfile);
 
 
 //suggestion route
@@ -64,7 +66,7 @@ router.post("/verify-otp",verifyOTP); //verifyOTP and Create a User.
 router.post("/login",login)
 
 //dashboard-stats
-router.get("/dashboard-stats",verifyToken,requireRole("Student"),dashboardStats);
+router.get("/dashboard-stats",verifyToken,dashboardStats);
 
 //contact route
 router.get("/contact",verifyToken,requireRole("Admin"),getContacts);

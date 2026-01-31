@@ -1,21 +1,46 @@
+import slugify from "slugify";
 import prisma from "../config/db";
 import { AuthRequest } from "../middlewares/auth.middleware";
 import { uploadToS3 } from "../utils/s3Upload";
 import { Response } from "express";
+import { nanoid } from "nanoid";
+import { htmlToText } from "html-to-text";
+
+export function extractMetaDescription(
+  html: string,
+  maxLength = 155
+): string {
+  const text = htmlToText(html, {
+    wordwrap: false,
+    selectors: [
+      { selector: "img", format: "skip" },
+      { selector: "a", options: { ignoreHref: true } },
+    ],
+  })
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return text.slice(0, maxLength);
+}
+
+function generateCourseSlug(title: string) {
+  return `${slugify(title, { lower: true })}--${nanoid(6)}`;
+}
 
 export const getArticles=async (req:AuthRequest,res:Response)=>{
   try {
     const articles = await prisma.article.findMany({
       orderBy: { createdAt: "desc" },
+      where:{
+        isPublished:true
+      },
       include:{
         author:{select:{name:true}},
         _count: {
           select: {likes: true }
         },
-        tags:true
       }
     });
-
     res.status(200).json({articles});
   } catch (e) {
     console.log(e);
@@ -23,24 +48,83 @@ export const getArticles=async (req:AuthRequest,res:Response)=>{
   }
 }
 
-export const getArticlesById=async (req:AuthRequest,res:Response)=>{
-    try {
-    const { id } = req.params;
-    if (!id || isNaN(Number(id))) {
-      return res.status(400).json({ error: "Invalid article ID" });
-    }
-    const article = await prisma.article.findUnique({
-      where: { id: Number(id) },
+//get all articles with student draft also.
+export const getAllArticles=async (req:AuthRequest,res:Response)=>{
+  try {
+    const resultedArticles = await prisma.article.findMany({
+      orderBy: { createdAt: "desc" },
+      where:{
+        isPublished:true
+      },
       include:{
-        author: { select: { name: true} },
+        author:{select:{name:true}},
         _count: {
           select: {likes: true }
         },
-        tags:true
       }
     });
-    if (!article) return res.status(404).json({ error: "Article not found" });
-    res.status(200).json({article});
+    const draftArticles= await prisma.article.findMany({
+      orderBy: { createdAt: "desc" },
+      where:{
+        isPublished:false,
+        authorId:req.user?.email
+      },
+      include:{
+        author:{select:{name:true}},
+        _count: {
+          select: {likes: true }
+        },
+      }
+    })
+    const allArticles=[...resultedArticles,...draftArticles];
+    res.status(200).json({articles:allArticles});
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+}
+
+//get published article only.
+export const getArticleBySlug=async (req:AuthRequest,res:Response)=>{
+  try {
+    const { slug } = req.params;
+
+    const article = await prisma.article.findFirst({
+      where: {
+        slug,
+        isPublished:true
+      },
+      include: {
+        author: {select:{name:true}},
+      },
+    });
+
+    return res.status(200).json({article});
+  } catch (e) {
+    console.error("Error fetching article:", e);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+}
+
+//get publish or student-draft articles
+export const getArticleByStudentZone=async (req:AuthRequest,res:Response)=>{
+  try {
+    const { slug } = req.params;
+
+    const resultedArticle = await prisma.article.findFirst({
+      where: {
+        slug,
+      },
+      include: {
+        author: {select:{name:true}},
+      },
+    });
+
+    let article;
+    if(resultedArticle?.authorId===req.user?.email || resultedArticle?.isPublished === true)
+      article=resultedArticle;
+
+    return res.status(200).json({article});
   } catch (e) {
     console.error("Error fetching article:", e);
     res.status(500).json({ error: "Internal Server error" });
@@ -49,28 +133,33 @@ export const getArticlesById=async (req:AuthRequest,res:Response)=>{
 
 export const postArticle=async (req:AuthRequest,res:Response)=>{
   try {
-    const { title, content, contentMd, tags } = req.body;
+    const { title, contentJson, contentHtml, tags, type, isPublished } = req.body;
     const authorId=req.user!.email;
 
-    if (!title || !contentMd) {
+    if (!title || !contentJson) {
       return res.status(400).json({ error: "Missing fields" });
     }
-    const file=req.file as Express.Multer.File;
-    //const url= getLocalFileUrl(req, file.filename);//for local use
-    const fileMetaData=await uploadToS3(file,"thumbmail");
+    // const file=req.file as Express.Multer.File;
+    // const url= getLocalFileUrl(req, file.filename);//for local use
+    // const fileMetaData=file && await uploadToS3(file,"thumbmail");
+
+    const firstParagraph = contentHtml.match(/<p>(.*?)<\/p>/)?.[1] || contentHtml;
+    const desc = extractMetaDescription(firstParagraph,155);
+    const metaDescription = desc.length === 155 ? `${desc}…` : desc;
 
     const article = await prisma.article.create({
       data: {
         title,
-        contentMd,
-        content,
-        thumbnail:fileMetaData.url,
+        slug: generateCourseSlug(title),
+        contentHtml,
+        contentJson,
+        metaTitle:title,
+        metaDescription,
+        noIndex:!isPublished,    //isPublished-> true , then noindex will be false to make it google indexable.
+        type,
+        isPublished,
         authorId,
-        tags: {
-          create: tags.split(",").map((tag:string) => ({
-            tagName: tag,
-          })),
-        },
+        tags
       },
     });
 
@@ -83,7 +172,7 @@ export const postArticle=async (req:AuthRequest,res:Response)=>{
         },
     });
 
-    res.status(201).json({ message: "30 xpPonits awarded and Article Created Successfully.", article });
+    res.status(201).json({ message: "30 xpPonits awarded and Content Created Successfully.", article });
   } catch (e) {
     console.log(e);
     res.status(500).json({ error: "Server error" });
@@ -98,14 +187,13 @@ export const updateArticle=async (req:AuthRequest,res:Response)=>{
       return res.status(400).json({ error: "Invalid article ID" });
     }
 
-    const { title, content, contentMd, thumbnail } = req.body;
+    const { title, contentHtml, contentJson} = req.body;
     const updatedArticle = await prisma.article.updateMany({
       where: { id: Number(id),authorId:req.user!.email },
       data: {
         title,
-        content,
-        contentMd,
-        thumbnail,
+        contentHtml,
+        contentJson,
       },
     });
 

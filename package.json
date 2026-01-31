@@ -7,7 +7,7 @@
     "dev": "npx ts-node-dev ./src/app.ts",
     "start": "node ./dist/src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "updateSchema": "npx dotenvx run -- npx prisma db push"
+    "updateSchema": "npx prisma db push"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
+    "html-to-text": "^9.0.5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.0.2",
     "morgan": "^1.10.1",
@@ -38,6 +39,7 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
+    "@types/html-to-text": "^9.0.4",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/multer-s3": "^3.0.3",
