@@ -187,17 +187,35 @@ export const updateArticle=async (req:AuthRequest,res:Response)=>{
       return res.status(400).json({ error: "Invalid article ID" });
     }
 
-    const { title, contentHtml, contentJson} = req.body;
-    const updatedArticle = await prisma.article.updateMany({
+    const { title, contentJson, contentHtml, tags, type, isPublished } = req.body;
+    const authorId=req.user!.email;
+
+    if (!title || !contentJson) {
+      return res.status(400).json({ error: "Missing fields" });
+    }
+
+    const firstParagraph = contentHtml.match(/<p>(.*?)<\/p>/)?.[1] || contentHtml;
+    const desc = extractMetaDescription(firstParagraph,155);
+    const metaDescription = desc.length === 155 ? `${desc}…` : desc;
+
+    const updatedArticle = await prisma.article.update({
       where: { id: Number(id),authorId:req.user!.email },
       data: {
         title,
+        slug: generateCourseSlug(title),
         contentHtml,
         contentJson,
+        metaTitle:title,
+        metaDescription,
+        noIndex:!isPublished,    //isPublished-> true , then noindex will be false to make it google indexable.
+        type,
+        isPublished,
+        authorId,
+        tags
       },
     });
 
-    if (updatedArticle.count===0) {
+    if (!updatedArticle) {
       return res.status(403).json({ message: "You are not authorized to update this article." });
     }
 
