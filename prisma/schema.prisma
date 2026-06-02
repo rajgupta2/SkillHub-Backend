@@ -175,7 +175,7 @@ model Article {
 
 enum ArticleType {
   BLOG
-  TUTORIAL    //one page tutorial
+  ARTICLE    //one page tutorial
   EXAM        //exam-oriented and interview oriented
   GUIDE
 }
@@ -214,4 +214,46 @@ model VerifyEmail {
   createdAt  DateTime @default(now())
   expiresAt  DateTime
   isVerified Boolean  @default(false)
+}
+
+model Job {
+  id              Int      @id @default(autoincrement())
+  title           String
+  slug            String   @unique
+
+  // Content
+  descriptionHtml String   @db.Text    // SEO friendly
+  descriptionJson Json                 // BlockNote source
+
+  // Company Info
+  companyName     String
+  location        String
+  jobType         JobType
+  experienceLevel ExperienceLevel
+
+  // Job Details
+  salaryRange     String?
+  applyUrl        String
+  isRemote        Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  expiryDate      DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+
+enum JobType {
+  FULL_TIME
+  PART_TIME
+  INTERNSHIP
+  CONTRACT
+  FREELANCE
+}
+
+enum ExperienceLevel {
+  FRESHER
+  JUNIOR
+  MID
+  SENIOR
 }

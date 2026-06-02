@@ -60,7 +60,7 @@ export const postCourse= async (req:AuthRequest, res:Response) => {
       slug:generateCourseSlug(title),
       links,
       owner,
-      status: "published",
+      status: "draft",
     });
 
     return res.json({ published: true, courseId: course._id });
@@ -180,6 +180,7 @@ export const updateCourseById= async (req:AuthRequest, res:Response) => {
 
   course.title = req.body.title ?? course.title;
   course.links = req.body.links ?? course.links;
+  course.status= req.body.status ?? course.status;
 
   await course.save();
 

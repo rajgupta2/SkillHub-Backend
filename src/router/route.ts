@@ -12,6 +12,7 @@ import { login, register, verifyOTP } from "../controllers/auth";
 import { getContacts, getContactsById, postContact } from "../controllers/contact";
 import { deleteCollegeById, deleteCollegeCourseById, getAllCollegeCourses, getAllColleges, getAuthUserCollege, getCollegeById } from "../controllers/college";
 import { deleteCourseById, getCourse, getCourseById, getCourseByLinkId, getCourseByLinkSlug, getCourseBySlug, isCourseOwner, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course";
+import { getAllJobs, getJobBySlug, postJob } from "../controllers/jobs";
 
 
 const router = express.Router();
@@ -97,5 +98,9 @@ router.put("/courses/:courseId/:linkId",verifyToken,updateCourseByLinkId);
 router.put("/courses/slug/:courseSlug/:linkSlug",verifyToken,updateCourseBySlugLinkId);
 router.delete("/courses/:id",verifyToken,deleteCourseById);
 
+//jobs route
+router.get("/jobs",getAllJobs);
+router.get("/jobs/:slug",getJobBySlug);
+router.post("/jobs",verifyToken,requireRole("Admin"),postJob);
 
 export default router;

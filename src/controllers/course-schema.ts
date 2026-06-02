@@ -3,7 +3,6 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface CourseDocument extends Document {
   title: string;
   description?: string;
-
   slug: string,
 
   links: {
@@ -18,7 +17,7 @@ export interface CourseDocument extends Document {
     email: string;
   };
 
-  status: "published";
+  status: "draft";
 
   createdAt: Date;
   updatedAt: Date;
@@ -45,8 +44,8 @@ const CourseSchema = new Schema<CourseDocument>(
 
     status: {
       type: String,
-      enum: ["published"],
-      default: "published",
+      enum: ["published","draft"],
+      default: "draft",
     },
   },
   { timestamps: true }
