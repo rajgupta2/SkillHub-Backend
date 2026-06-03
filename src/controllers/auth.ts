@@ -8,35 +8,32 @@ import { PREMIUM_EMAIL_TEMPLATE } from "../utils/PREMIUM_EMAIL_TEMPLATE";
 const JWT_SECRET=process.env.JWT_SECRET!;
 const salt = bcrypt.genSaltSync(10);
 
-
+//sent-mail To User
 export const register=async (req: Request, res: Response) => {
   try{
     const { email, fullName } = req.body;
-    const existingUser = await prisma.user.findUnique({ where: { email } });
 
-    if (existingUser)
-        return res.status(400).json({ message: "Email already registered" });
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    await prisma.verifyEmail.deleteMany({ where: { email } });
-
-    await sendEmail(email, "Verify Your Email - SkillHub", PREMIUM_EMAIL_TEMPLATE(otp));
-    await prisma.verifyEmail.create({
-        data: {
-            email,
-            otp,
-            expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
-        }
+    //Calling Lambda Email Sent Function
+    const rese = await fetch(`${process.env.LAMBDA_SEND_EMAIL_API}/auth/register`, {
+        method: "POST",
+        headers: {
+           "Content-Type": "application/json",
+           "Authorization": `Bearer ${process.env.LAMBDA_API_KEY}`
+        },
+        body: JSON.stringify({
+          email,
+          fullName
+        }),
     });
-    res.status(200).json({
-        message: "OTP sent to email",
-        email
-    });
+    const data=await rese.json()
+    return res.status(200).json(data);
+
   }catch(error){
     return res.status(500).json({message:"Failed to send email.",error});
   }
 }
 
+//create a user after verifying otp
 export const verifyOTP=async (req: Request, res: Response) => {
   try {
     const {
