@@ -176,8 +176,7 @@ model Article {
 enum ArticleType {
   BLOG
   ARTICLE    //one page tutorial
-  EXAM        //exam-oriented and interview oriented
-  GUIDE
+  INTERVIEW
 }
 
 model Like {
