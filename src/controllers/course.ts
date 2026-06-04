@@ -24,11 +24,24 @@ export const isCourseOwner= async (req:AuthRequest, res:Response) => {
 }
 
 export const getCourse= async (req:AuthRequest, res:Response) => {
-  const courses = await Course.find()
+  const courses = await Course.find({
+    status:"published"
+  })
     .sort({ createdAt: -1 })
     .select("-links.content -owner.email"); // optional: preview only
 
-  res.json(courses);
+  return res.status(200).json(courses);
+}
+
+export const getAllDraftCourse= async (req:AuthRequest, res:Response) => {
+  const draftCourses=await Course.find({
+    status:"draft",
+    "owner.email":req.user?.email
+  })
+    .sort({ createdAt: -1 })
+    .select("-links.content -owner.email");
+
+  res.status(200).json(draftCourses);
 }
 
 export const postCourse= async (req:AuthRequest, res:Response) => {
@@ -119,13 +132,17 @@ export const getCourseById= async (req:AuthRequest, res:Response) => {
 }
 
 export const getCourseBySlug= async (req:AuthRequest, res:Response) => {
-  const course = await Course.findOne({slug:req.params.slug}).select("-owner.email");
+  const course = await Course.findOne({
+    slug:req.params.slug
+  })
 
   if (!course) {
     return res.status(404).json({ error: "Course not found" });
+  }else if(course.status==="published" || (course.status==="draft" && course.owner.email===req.user?.email)){
+    return res.status(200).json(course);
   }
 
-  return res.status(200).json(course);
+  return res.status(401).json("You are unauthorized to acces the content.");
 }
 
 export const getCourseByLinkId= async (req:AuthRequest, res:Response) => {

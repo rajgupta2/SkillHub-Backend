@@ -4,6 +4,22 @@ import { AuthRequest } from "../middlewares/auth.middleware";
 import { Response } from "express";
 import { nanoid } from "nanoid";
 
+type JobType = "FULL_TIME" | "PART_TIME" | "INTERNSHIP" | "CONTRACT" | "FREELANCE";
+type ExperienceLevel = "FRESHER" | "JUNIOR" | "MID" | "SENIOR";
+type JobSchema={
+    title:string;
+    descriptionJson:string;
+    descriptionHtml:string;
+    companyName:string;
+    location:string;
+    jobType:JobType;
+    experienceLevel:ExperienceLevel;
+    salaryRange:string | null;
+    applyUrl:string;
+    isRemote:boolean;
+    isActive:boolean;
+    expiryDate:string;
+}
 
 function generateJobSlug(title: string) {
   return `${slugify(title, { lower: true })}--${nanoid(6)}`;
@@ -40,27 +56,35 @@ export const getJobBySlug=async (req:AuthRequest,res:Response)=>{
 
 export const postJob=async (req:AuthRequest,res:Response)=>{
   try {
-    const {
-        title, descriptionJson, descriptionHtml, companyName,
-        location, jobType, experienceLevel, salaryRange, applyUrl,
-        isRemote, isActive, expiryDate
-    } = req.body;
+    const jobs:JobSchema[] = req.body;
 
-    if (!title || !descriptionJson) {
-      return res.status(400).json({ error: "Missing fields" });
-    }
+    if(jobs.length==0) return  res.status(500).json({ error: "No Job Array Found." });
 
-    const job = await prisma.job.create({
-      data: {
-        title,
-        slug: generateJobSlug(title),
-        descriptionJson, descriptionHtml, companyName,
-        location, jobType, experienceLevel, salaryRange, applyUrl,
-        isRemote, isActive, expiryDate,
-      },
-    });
+    jobs.forEach(async (job)=>{
+      if (!job.title || !job.descriptionJson) {
+          return res.status(400).json({ error: "Missing fields" });
+      }
 
-    res.status(201).json({ message: "Job Created Successfully.", job });
+      await prisma.job.create({
+        data: {
+          title:job.title,
+          slug: generateJobSlug(`${job.companyName} ${job.title}`),
+          descriptionJson:job.descriptionJson,
+          descriptionHtml:job.descriptionHtml,
+          companyName:job.companyName,
+          location:job.location,
+          jobType:job.jobType,
+          experienceLevel:job.experienceLevel,
+          salaryRange:job.salaryRange,
+          applyUrl:job.applyUrl,
+          isRemote:job.isRemote,
+          isActive:job.isActive,
+          expiryDate:job.expiryDate,
+        },
+      });
+    })
+
+    res.status(201).json({ message: `${jobs.length} Job Created Successfully.`, jobs });
   } catch (e) {
     console.log(e);
     res.status(500).json({ error: "Server error" });

@@ -17,7 +17,7 @@ export interface CourseDocument extends Document {
     email: string;
   };
 
-  status: "draft";
+  status: "draft" | "published";
 
   createdAt: Date;
   updatedAt: Date;

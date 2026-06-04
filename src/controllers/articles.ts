@@ -5,6 +5,7 @@ import { uploadToS3 } from "../utils/s3Upload";
 import { Response } from "express";
 import { nanoid } from "nanoid";
 import { htmlToText } from "html-to-text";
+import { isCourseOwner } from "./course";
 
 export function extractMetaDescription(
   html: string,
@@ -27,26 +28,6 @@ function generateCourseSlug(title: string) {
   return `${slugify(title, { lower: true })}--${nanoid(6)}`;
 }
 
-export const getArticles=async (req:AuthRequest,res:Response)=>{
-  try {
-    const articles = await prisma.article.findMany({
-      orderBy: { createdAt: "desc" },
-      where:{
-        isPublished:true
-      },
-      include:{
-        author:{select:{name:true}},
-        _count: {
-          select: {likes: true }
-        },
-      }
-    });
-    res.status(200).json({articles});
-  } catch (e) {
-    console.log(e);
-    res.status(500).json({ error: "Internal Server error" });
-  }
-}
 
 //get all articles with student draft also.
 export const getAllArticles=async (req:AuthRequest,res:Response)=>{
@@ -63,11 +44,11 @@ export const getAllArticles=async (req:AuthRequest,res:Response)=>{
         },
       }
     });
-    const draftArticles= await prisma.article.findMany({
+    const draftArticles= !req.user?.email ?  [] : await prisma.article.findMany({
       orderBy: { createdAt: "desc" },
       where:{
         isPublished:false,
-        authorId:req.user?.email
+        authorId:req.user.email
       },
       include:{
         author:{select:{name:true}},
@@ -88,43 +69,20 @@ export const getAllArticles=async (req:AuthRequest,res:Response)=>{
 export const getArticleBySlug=async (req:AuthRequest,res:Response)=>{
   try {
     const { slug } = req.params;
-
-    const article = await prisma.article.findFirst({
-      where: {
-        slug,
-        isPublished:true
-      },
-      include: {
-        author: {select:{name:true}},
-      },
-    });
-
-    return res.status(200).json({article});
-  } catch (e) {
-    console.error("Error fetching article:", e);
-    res.status(500).json({ error: "Internal Server error" });
-  }
-}
-
-//get publish or student-draft articles
-export const getArticleByStudentZone=async (req:AuthRequest,res:Response)=>{
-  try {
-    const { slug } = req.params;
-
     const resultedArticle = await prisma.article.findFirst({
       where: {
-        slug,
+        slug
       },
       include: {
         author: {select:{name:true}},
       },
     });
 
-    let article;
-    if(resultedArticle?.authorId===req.user?.email || resultedArticle?.isPublished === true)
-      article=resultedArticle;
+    const isContentOwner=resultedArticle?.authorId===req.user?.email;
+    if(resultedArticle?.authorId===req.user?.email || resultedArticle?.isPublished ===true)
+      return res.status(200).json({article:resultedArticle,isContentOwner});
 
-    return res.status(200).json({article});
+    return res.status(401).json({article:null});
   } catch (e) {
     console.error("Error fetching article:", e);
     res.status(500).json({ error: "Internal Server error" });

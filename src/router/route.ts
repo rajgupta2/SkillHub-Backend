@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteArticleById, getAllArticles, getArticleBySlug, getArticleByStudentZone, getArticles, postArticle, updateArticle } from "../controllers/articles";
+import { deleteArticleById, getAllArticles, getArticleBySlug, postArticle, updateArticle } from "../controllers/articles";
 import {upload} from "../utils/multer";
 import { requireRole, verifyToken } from "../middlewares/auth.middleware";
 import { deleteMaterialById, getCollegeResources, getMaterials, getMaterialsById, postMaterial, recentContribution, updateMaterialsById } from "../controllers/materials";
@@ -11,16 +11,16 @@ import { deleteSuggestionById, getSuggestions, postSuggestion, updateStatus_Sugg
 import { login, register, verifyOTP } from "../controllers/auth";
 import { getContacts, getContactsById, postContact } from "../controllers/contact";
 import { deleteCollegeById, deleteCollegeCourseById, getAllCollegeCourses, getAllColleges, getAuthUserCollege, getCollegeById } from "../controllers/college";
-import { deleteCourseById, getCourse, getCourseById, getCourseByLinkId, getCourseByLinkSlug, getCourseBySlug, isCourseOwner, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course";
+import { deleteCourseById, getAllDraftCourse, getCourse, getCourseById, getCourseByLinkId, getCourseByLinkSlug, getCourseBySlug, isCourseOwner, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course";
 import { getAllJobs, getJobBySlug, postJob } from "../controllers/jobs";
 
 
 const router = express.Router();
 
 //article routes
-router.get("/article",getArticles);
+router.get("/article",getAllArticles);
 router.get("/article/slug/:slug",getArticleBySlug);
-router.get("/student/article/:slug",verifyToken,getArticleByStudentZone);
+router.get("/student/article/:slug",verifyToken,getArticleBySlug);
 router.get("/student/article",verifyToken,getAllArticles);
 router.post("/article",verifyToken,postArticle);
 
@@ -52,7 +52,6 @@ router.put("/profile",verifyToken,updateProfile);
 
 //suggestion route
 router.get("/suggestion",verifyToken,requireRole("Student"),getSuggestions);
-router.get("/suggestion",verifyToken,requireRole("Admin"),getSuggestions);
 router.post("/suggestion",verifyToken,requireRole("Student"),postSuggestion);
 
 router.put("/suggestion/:id",verifyToken,requireRole("Student"),updateSuggestionById)
@@ -85,14 +84,15 @@ router.delete("/college-course/:id",verifyToken,requireRole("Admin"),deleteColle
 
 //Tutorial route
 router.get("/courses",getCourse);
-router.post("/courses",verifyToken,postCourse);
-router.post("/courses/:courseId/:linkId",verifyToken,postCourseByLinkId);
+router.get("/draft/courses",verifyToken,getAllDraftCourse);
+router.get("/draft/courses/:slug",verifyToken,getCourseBySlug);
+router.get("/courses/:slug",getCourseBySlug);
+
+//router.get("/courses/:id",getCourseById);
 router.get("/iscourseowner/:courseSlug",verifyToken,isCourseOwner);
 
-router.get("/courses/:id",getCourseById);
-router.get("/courses/slug/:slug",getCourseBySlug);
-router.get("/courses/:id/:linkId",getCourseByLinkId);
-router.get("/courses/slug/:courseSlug/:linkSlug",getCourseByLinkSlug);
+router.post("/courses",verifyToken,postCourse);
+router.post("/courses/:courseId/:linkId",verifyToken,postCourseByLinkId);
 router.put("/courses/:id",verifyToken,updateCourseById);
 router.put("/courses/:courseId/:linkId",verifyToken,updateCourseByLinkId);
 router.put("/courses/slug/:courseSlug/:linkSlug",verifyToken,updateCourseBySlugLinkId);
