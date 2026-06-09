@@ -1,9 +1,9 @@
 import{ Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import prisma from "../config/db";
-import {sendEmail} from "../utils/email"
-import { PREMIUM_EMAIL_TEMPLATE } from "../utils/PREMIUM_EMAIL_TEMPLATE";
+import prisma from "../config/db.js";
+import {sendEmail} from "../utils/email.js"
+import { PREMIUM_EMAIL_TEMPLATE } from "../utils/PREMIUM_EMAIL_TEMPLATE.js";
 
 const JWT_SECRET=process.env.JWT_SECRET!;
 const salt = bcrypt.genSaltSync(10);
@@ -29,6 +29,7 @@ export const register=async (req: Request, res: Response) => {
     return res.status(200).json(data);
 
   }catch(error){
+    console.log(error);
     return res.status(500).json({message:"Failed to send email.",error});
   }
 }

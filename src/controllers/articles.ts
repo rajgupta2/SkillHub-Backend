@@ -1,11 +1,11 @@
 import slugify from "slugify";
-import prisma from "../config/db";
-import { AuthRequest } from "../middlewares/auth.middleware";
-import { uploadToS3 } from "../utils/s3Upload";
+import prisma from "../config/db.js";
+import { AuthRequest } from "../middlewares/auth.middleware.js";
+import { uploadToS3 } from "../utils/s3Upload.js";
 import { Response } from "express";
 import { nanoid } from "nanoid";
 import { htmlToText } from "html-to-text";
-import { isCourseOwner } from "./course";
+import { isCourseOwner } from "./course.js";
 
 export function extractMetaDescription(
   html: string,

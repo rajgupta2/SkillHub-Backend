@@ -1,8 +1,8 @@
 import { Response } from "express";
-import { AuthRequest } from "../middlewares/auth.middleware";
-import prisma from "../config/db";
-import { MulterS3File } from "../utils/multerS3";         //For AWS S3
-import { deleteFilesFromS3} from "../utils/s3Upload";
+import { AuthRequest } from "../middlewares/auth.middleware.js";
+import prisma from "../config/db.js";
+import { MulterS3File } from "../utils/multerS3.js";         //For AWS S3
+import { deleteFilesFromS3} from "../utils/s3Upload.js";
 
 export const recentContribution=async (req: AuthRequest, res:Response) =>{
   try {

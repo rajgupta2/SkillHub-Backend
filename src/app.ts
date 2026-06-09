@@ -2,11 +2,10 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import prisma from "./config/db";
 import { Request, Response } from "express";
-import router from "./router/route"
-import { verifyOrigin } from "./middlewares/auth.middleware";
-import { connectDB } from "./config/mongoDB";
+import router from "./router/route.js"
+import { verifyOrigin } from "./middlewares/auth.middleware.js";
+import { connectDB } from "./config/mongoDB.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -48,7 +47,6 @@ app.use((err: any, req: any, res: any, next: any) => {
 
 app.listen(Number(PORT), async () => {
   try {
-    await prisma.$connect();
     await connectDB();
     console.log(`✅ Connected to PostgreSQL and mongodb`);
     console.log(`🌐 Server running on ${process.env.CLIENT_URL}:${PORT}`);

@@ -1,6 +1,6 @@
 import { Response } from "express";
-import prisma  from "../config/db";
-import { AuthRequest } from "../middlewares/auth.middleware";
+import prisma  from "../config/db.js";
+import { AuthRequest } from "../middlewares/auth.middleware.js";
 
 
 

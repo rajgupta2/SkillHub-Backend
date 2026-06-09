@@ -1,18 +1,18 @@
 import express from "express";
-import { deleteArticleById, getAllArticles, getArticleBySlug, postArticle, updateArticle } from "../controllers/articles";
-import {upload} from "../utils/multer";
-import { requireRole, verifyToken } from "../middlewares/auth.middleware";
-import { deleteMaterialById, getCollegeResources, getMaterials, getMaterialsById, postMaterial, recentContribution, updateMaterialsById } from "../controllers/materials";
-import { getCollegePeers } from "../controllers/college_peers";
-import {leaderBoard } from "../controllers/leaderboard";
-import { uploadS3 } from "../utils/multerS3";
-import { dashboardStats, getProfile, updateProfile } from "../controllers/profile";
-import { deleteSuggestionById, getSuggestions, postSuggestion, updateStatus_Suggestion, updateSuggestionById } from "../controllers/suggestions";
-import { login, register, verifyOTP } from "../controllers/auth";
-import { getContacts, getContactsById, postContact } from "../controllers/contact";
-import { deleteCollegeById, deleteCollegeCourseById, getAllCollegeCourses, getAllColleges, getAuthUserCollege, getCollegeById } from "../controllers/college";
-import { deleteCourseById, getAllDraftCourse, getCourse, getCourseById, getCourseByLinkId, getCourseByLinkSlug, getCourseBySlug, isCourseOwner, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course";
-import { getAllJobs, getJobBySlug, postJob } from "../controllers/jobs";
+import { deleteArticleById, getAllArticles, getArticleBySlug, postArticle, updateArticle } from "../controllers/articles.js";
+import {upload} from "../utils/multer.js";
+import { requireRole, verifyToken } from "../middlewares/auth.middleware.js";
+import { deleteMaterialById, getCollegeResources, getMaterials, getMaterialsById, postMaterial, recentContribution, updateMaterialsById } from "../controllers/materials.js";
+import { getCollegePeers } from "../controllers/college_peers.js";
+import {leaderBoard } from "../controllers/leaderboard.js";
+import { uploadS3 } from "../utils/multerS3.js";
+import { dashboardStats, getProfile, updateProfile } from "../controllers/profile.js";
+import { deleteSuggestionById, getSuggestions, postSuggestion, updateStatus_Suggestion, updateSuggestionById } from "../controllers/suggestions.js";
+import { login, register, verifyOTP } from "../controllers/auth.js";
+import { getContacts, getContactsById, postContact } from "../controllers/contact.js";
+import { deleteCollegeById, deleteCollegeCourseById, getAllCollegeCourses, getAllColleges, getAuthUserCollege, getCollegeById } from "../controllers/college.js";
+import { deleteCourseById, getAllDraftCourse, getCourse, getCourseById, getCourseByLinkId, getCourseByLinkSlug, getCourseBySlug, isCourseOwner, postCourse, postCourseByLinkId, updateCourseById, updateCourseByLinkId, updateCourseBySlugLinkId} from "../controllers/course.js";
+import { getAllJobs, getJobBySlug, postJob } from "../controllers/jobs.js";
 
 
 const router = express.Router();

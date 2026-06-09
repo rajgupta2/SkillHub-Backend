@@ -1,6 +1,6 @@
 import { Request,Response } from "express";
-import prisma  from "../config/db";
-import { AuthRequest } from "src/middlewares/auth.middleware";
+import prisma  from "../config/db.js";
+import { AuthRequest } from "../../src/middlewares/auth.middleware.js";
 
 export const getAllColleges=async (req: Request, res:Response) => {
   try {

@@ -1,7 +1,7 @@
-import { AuthRequest } from "../middlewares/auth.middleware";
-import Course from "./course-schema";
+import { AuthRequest } from "../middlewares/auth.middleware.js";
+import Course from "./course-schema.js";
 import { Response } from "express";
-import prisma from "../config/db";
+import prisma from "../config/db.js";
 import slugify from "slugify";
 import { nanoid } from "nanoid";
 
