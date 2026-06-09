@@ -160,7 +160,6 @@ export const updateArticle=async (req:AuthRequest,res:Response)=>{
       where: { id: Number(id),authorId:req.user!.email },
       data: {
         title,
-        slug: generateCourseSlug(title),
         contentHtml,
         contentJson,
         metaTitle:title,

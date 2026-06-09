@@ -19,9 +19,9 @@ const router = express.Router();
 
 //article routes
 router.get("/article",getAllArticles);
+router.get("/student/article",verifyToken,getAllArticles);
 router.get("/article/slug/:slug",getArticleBySlug);
 router.get("/student/article/:slug",verifyToken,getArticleBySlug);
-router.get("/student/article",verifyToken,getAllArticles);
 router.post("/article",verifyToken,postArticle);
 
 router.put("/article/:id",verifyToken,updateArticle)
