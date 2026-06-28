@@ -65,7 +65,29 @@ export const getAllArticles=async (req:AuthRequest,res:Response)=>{
   }
 }
 
-//get published article only.
+export const getStudentArticles=async (req:AuthRequest,res:Response)=>{
+  try {
+    const Articles= !req.user?.email ?  [] : await prisma.article.findMany({
+      orderBy: { createdAt: "desc" },
+      where:{
+        authorId:req.user.email
+      },
+      include:{
+        author:{select:{name:true}},
+        _count: {
+          select: {likes: true }
+        },
+      }
+    })
+    const allArticles=[...Articles];
+    res.status(200).json({articles:allArticles});
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+}
+
+//get published or draft article only.
 export const getArticleBySlug=async (req:AuthRequest,res:Response)=>{
   try {
     const { slug } = req.params;
@@ -78,8 +100,8 @@ export const getArticleBySlug=async (req:AuthRequest,res:Response)=>{
       },
     });
 
-    const isContentOwner=resultedArticle?.authorId===req.user?.email;
-    if(resultedArticle?.authorId===req.user?.email || resultedArticle?.isPublished ===true)
+    const isContentOwner:boolean=resultedArticle?.authorId===req.user?.email;
+    if(isContentOwner || resultedArticle?.isPublished ===true)
       return res.status(200).json({article:resultedArticle,isContentOwner});
 
     return res.status(401).json({article:null});

@@ -1,5 +1,5 @@
 import express from "express";
-import { deleteArticleById, getAllArticles, getArticleBySlug, postArticle, updateArticle } from "../controllers/articles.js";
+import { deleteArticleById, getAllArticles, getArticleBySlug, getStudentArticles, postArticle, updateArticle } from "../controllers/articles.js";
 import {upload} from "../utils/multer.js";
 import { requireRole, verifyToken } from "../middlewares/auth.middleware.js";
 import { deleteMaterialById, getCollegeResources, getMaterials, getMaterialsById, postMaterial, recentContribution, updateMaterialsById } from "../controllers/materials.js";
@@ -19,8 +19,8 @@ const router = express.Router();
 
 //article routes
 router.get("/article",getAllArticles);
-router.get("/student/article",verifyToken,getAllArticles);
-router.get("/article/slug/:slug",getArticleBySlug);
+router.get("/article/:slug",getArticleBySlug);
+router.get("/student/article",verifyToken,getStudentArticles);
 router.get("/student/article/:slug",verifyToken,getArticleBySlug);
 router.post("/article",verifyToken,postArticle);
 
