@@ -286,7 +286,12 @@ Supported file types:
 
 # 📄 License
 
-This project is licensed under the **MIT License**.
+This project is proprietary software.
+
+- Copyright (c) 2026 Raj Gupta
+- All rights reserved.
+
+The source code is provided for viewing and educational purposes only.
 
 ---
 
