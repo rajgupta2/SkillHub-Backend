@@ -1,9 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "/dist/src/server.js",
+  "main": "/dist/src/app.js",
   "type": "module",
   "scripts": {
+    "prebuild": "npx prisma generate && echo prisma generated ",
     "build": "tsc",
     "dev": "tsx watch src/app.ts",
     "start": "node ./dist/src/app.js",
@@ -15,8 +16,7 @@
   "description": "",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.929.0",
-    "@aws-sdk/s3-request-presigner": "^3.932.0",
-    "@codegenie/serverless-express": "^4.17.1",
+    "@aws-sdk/s3-request-presigner": "^3.943.0",
     "@prisma/client": "^6.19.0",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",

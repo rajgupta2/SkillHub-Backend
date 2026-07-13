@@ -1,11 +1,9 @@
 import slugify from "slugify";
 import prisma from "../config/db.js";
 import { AuthRequest } from "../middlewares/auth.middleware.js";
-import { uploadToS3 } from "../utils/s3Upload.js";
 import { Response } from "express";
 import { nanoid } from "nanoid";
 import { htmlToText } from "html-to-text";
-import { isCourseOwner } from "./course.js";
 
 export function extractMetaDescription(
   html: string,
@@ -39,9 +37,6 @@ export const getAllArticles=async (req:AuthRequest,res:Response)=>{
       },
       include:{
         author:{select:{name:true}},
-        _count: {
-          select: {likes: true }
-        },
       }
     });
     const draftArticles= !req.user?.email ?  [] : await prisma.article.findMany({
@@ -52,9 +47,6 @@ export const getAllArticles=async (req:AuthRequest,res:Response)=>{
       },
       include:{
         author:{select:{name:true}},
-        _count: {
-          select: {likes: true }
-        },
       }
     })
     const allArticles=[...resultedArticles,...draftArticles];
@@ -67,20 +59,16 @@ export const getAllArticles=async (req:AuthRequest,res:Response)=>{
 
 export const getStudentArticles=async (req:AuthRequest,res:Response)=>{
   try {
-    const Articles= !req.user?.email ?  [] : await prisma.article.findMany({
+    const Articles= await prisma.article.findMany({
       orderBy: { createdAt: "desc" },
       where:{
-        authorId:req.user.email
+        authorId:req.user!.email
       },
       include:{
         author:{select:{name:true}},
-        _count: {
-          select: {likes: true }
-        },
       }
-    })
-    const allArticles=[...Articles];
-    res.status(200).json({articles:allArticles});
+    });
+    res.status(200).json({articles:Articles});
   } catch (e) {
     console.log(e);
     res.status(500).json({ error: "Internal Server error" });

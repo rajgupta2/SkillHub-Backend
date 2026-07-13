@@ -31,7 +31,6 @@ model User {
   articles    Article[]
   activities  Activity[]
   suggestions Suggestion[]
-  givenlikes  Like[]
 }
 
 model StudentProfile {
@@ -166,7 +165,6 @@ model Article {
   authorId        String
   author          User   @relation(fields: [authorId], references: [email])
   tags            String
-  likes           Like[]
 
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -178,33 +176,6 @@ enum ArticleType {
   INTERVIEW
 }
 
-model Like {
-  id        Int    @id @default(autoincrement())
-  articleId Int
-  userId    String
-
-  likeOf Article @relation(fields: [articleId], references: [id])
-  likeBy User    @relation(fields: [userId], references: [email])
-}
-
-model Challenge {
-  id          Int               @id @default(autoincrement())
-  title       String
-  category    ChallengeCategory
-  description String
-  xpReward    Int
-  createdAt   DateTime          @default(now())
-
-  launch   DateTime?
-  deadline DateTime?
-}
-
-enum ChallengeCategory {
-  Coding
-  Quiz
-  Project
-}
-
 model VerifyEmail {
   id         Int      @id @default(autoincrement())
   email      String   @unique
@@ -212,46 +183,4 @@ model VerifyEmail {
   createdAt  DateTime @default(now())
   expiresAt  DateTime
   isVerified Boolean  @default(false)
-}
-
-model Job {
-  id              Int      @id @default(autoincrement())
-  title           String
-  slug            String   @unique
-
-  // Content
-  descriptionHtml String   @db.Text    // SEO friendly
-  descriptionJson Json                 // BlockNote source
-
-  // Company Info
-  companyName     String
-  location        String
-  jobType         JobType
-  experienceLevel ExperienceLevel
-
-  // Job Details
-  salaryRange     String?
-  applyUrl        String
-  isRemote        Boolean  @default(false)
-  isActive        Boolean  @default(true)
-  expiryDate      DateTime?
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-}
-
-
-enum JobType {
-  FULL_TIME
-  PART_TIME
-  INTERNSHIP
-  CONTRACT
-  FREELANCE
-}
-
-enum ExperienceLevel {
-  FRESHER
-  JUNIOR
-  MID
-  SENIOR
 }
