@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { Request, Response } from "express";
 import router from "./router/route.js"
-import { verifyOrigin } from "./middlewares/auth.middleware.js";
 import { connectDB } from "./config/mongoDB.js";
 
 const PORT = process.env.PORT || 5000;
@@ -38,13 +37,11 @@ app.get(["/","/api"], async (req:Request, res:Response) => {
   res.send("🚀 SkillHub Backend API is Running!");
 });
 
-
 // ⚠️ ERROR HANDLER (Basic)
 app.use((err: any, req: any, res: any, next: any) => {
   console.error("Error:", err.message);
   res.status(500).json({ error: "Internal Server Error", errorMessage:err});
 });
-
 app.listen(Number(PORT), async () => {
   try {
     await connectDB();
