@@ -34,15 +34,15 @@ export const uploadToS3 = async (file: Express.Multer.File,type:string) => {
 };
 
 
-export const createSignedUrl=async (fileKey:string,seconds:number)=>{
+export const createSignedUrl=async (fileKey:string,fileName:string)=>{
   const command = new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME!,
-      Key: fileKey,
-      // optionally force browser to download with suggested filename:
-     // ...(download === "true" && { ResponseContentDisposition: `attachment; filename="${file.originalName || key.split('/').pop()}"` })
+    Bucket: process.env.AWS_BUCKET_NAME!,
+    Key: fileKey,
+    // optionally force browser to download with suggested filename:
+    ResponseContentDisposition: `attachment; filename="${fileName}"`,
   });
   // expiresIn is in seconds (e.g., 60)
-  const url = await getSignedUrl(s3, command, { expiresIn: seconds });
+  const url = await getSignedUrl(s3, command);
   return url;
 }
 
