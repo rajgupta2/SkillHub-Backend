@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import {
   deleteArticleById,
   getAllArticles,
@@ -61,6 +61,7 @@ import {
   updateCourseByLinkId,
   updateCourseBySlugLinkId,
 } from "../controllers/course.js";
+import { createSignedUrl } from "../utils/s3Upload.js";
 
 const router = express.Router();
 
@@ -174,5 +175,12 @@ router.put(
   updateCourseBySlugLinkId,
 );
 router.delete("/courses/:id", verifyToken, deleteCourseById);
+
+router.get("/download",async (req:Request,res:Response)=>{
+  const s3Key=req.query.s3Key as string;
+  const fileName=req.query.fileName as string;
+  const url=await createSignedUrl(s3Key,fileName);
+  return res.redirect(url);
+});
 
 export default router;
