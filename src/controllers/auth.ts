@@ -43,6 +43,8 @@ export const verifyOTP=async (req: Request, res: Response) => {
         fullName,
         role,
         otp,
+        college,
+        course
     } = req.body;
 
     const record = await prisma.verifyEmail.findUnique({ where: { email } });
@@ -56,13 +58,46 @@ export const verifyOTP=async (req: Request, res: Response) => {
 
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    let finalCollegeId: number;
+    if (college.id!==0) {
+      finalCollegeId = Number(college.id);
+    } else {
+      const newCollege = await prisma.college.create({
+        data: {
+          name: college.name,
+          city: college.city,
+          district: college.district,
+          state: college.state,
+        },
+      });
+      finalCollegeId = newCollege.id;
+    }
+
+    let finalCourseId: number;
+    if (course.id !== 0) {
+      finalCourseId = Number(course.id);
+    } else {
+      const newCourse = await prisma.course.create({
+        data: {
+          name: course.name,
+        },
+      });
+      finalCourseId = newCourse.id;
+    }
+
     await prisma.user.create({
       data: {
         email,
-        name:fullName,
+        name: fullName,
         role,
         password: hashedPassword,
-        isVerified:true
+        isVerified: true,
+        profile: {
+          create: {
+            college: { connect: { id: finalCollegeId } },
+            course: { connect: { id: finalCourseId } },
+          },
+        },
       },
     });
 

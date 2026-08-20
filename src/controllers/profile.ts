@@ -6,7 +6,7 @@ const calculateRank=async (district:any,email:string)=>{
 
     if(!district) return 1;
 
-    // 4️⃣ Compute District Rank
+    // Compute District Rank
     const districtLeaders = district.length>0 && await prisma.user.findMany({
       where: {
         profile: {
