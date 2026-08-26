@@ -46,9 +46,16 @@ export const getMaterials=async (req: AuthRequest, res:Response) =>{
         subject: true,
         createdAt: true,
         uploadedBy: {
-          select: { name: true }
+          select: {
+            name: true,
+            profile: {
+              select: {
+                college: true,
+              },
+            },
+          },
         },
-        files: true
+        files: true,
       },
       orderBy: { createdAt: "desc" },
       take: limit,
@@ -68,19 +75,26 @@ export const getMaterialsById=async (req: AuthRequest, res:Response)=>{
       return res.status(400).json({ error: "Invalid material Id." });
     }
     const material = await prisma.material.findUnique({
-       where: { id: Number(materialId) },
-       select: {
-          id: true,
-          title: true,
-          description: true,
-          type: true,
-          subject: true,
-          createdAt: true,
-          uploadedBy: {
-            select: { name: true }
+      where: { id: Number(materialId) },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        type: true,
+        subject: true,
+        createdAt: true,
+        uploadedBy: {
+          select: {
+            name: true,
+            profile: {
+              select: {
+                college: true,
+              },
+            },
           },
-          files: true
         },
+        files: true,
+      },
     });
     if (!material) return res.status(404).json({ message: "Material not found" });
 

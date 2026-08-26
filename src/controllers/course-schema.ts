@@ -10,6 +10,7 @@ export interface CourseDocument extends Document {
     title: string;
     order: number;
     content: any; // editor JSON
+    slug:string;
   }[];
 
   owner: {
@@ -34,6 +35,7 @@ const CourseSchema = new Schema<CourseDocument>(
         title: String,
         order: Number,
         content: Schema.Types.Mixed,
+        slug: String,
       },
     ],
 

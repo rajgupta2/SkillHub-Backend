@@ -10,7 +10,7 @@ function generateCourseSlug(title: string) {
 }
 
 function generateLinkSlug(title: string) {
-  if(!title) return;
+  if(!title) return "";
   title=title.trim();
   return `${slugify(title, { lower: true })}`;
 }
@@ -105,7 +105,8 @@ export const postCourseByLinkId= async (req:AuthRequest, res:Response) => {
       linkId,
       title,
       order: course.links.length + 1,
-      content
+      content,
+      slug:generateLinkSlug(title)
     }
 
     course.links.push(link);
