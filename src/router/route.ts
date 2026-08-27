@@ -46,22 +46,17 @@ import {
   getAuthUserCollege,
   getCollegeById,
 } from "../controllers/college.js";
-import {
-  deleteCourseById,
-  getAllDraftCourse,
-  getCourse,
-  getCourseById,
-  getCourseByLinkId,
-  getCourseByLinkSlug,
-  getCourseBySlug,
-  isCourseOwner,
-  postCourse,
-  postCourseByLinkId,
-  updateCourseById,
-  updateCourseByLinkId,
-  updateCourseBySlugLinkId,
-} from "../controllers/course.js";
 import { createSignedUrl } from "../utils/s3Upload.js";
+import {
+  getCourse,
+  getCourseBySlug,
+  postCourse,
+  deleteTutorialBySlug,
+  getAllUserTutorials,
+  getTutorialBySlug,
+  postTutorial,
+  updateTutorialBySlug,
+} from "../controllers/tutorials.js";
 
 const router = express.Router();
 
@@ -158,23 +153,16 @@ router.delete(
 
 //Tutorial route
 router.get("/courses", getCourse);
-router.get("/draft/courses", verifyToken, getAllDraftCourse);
-router.get("/draft/courses/:slug", verifyToken, getCourseBySlug);
 router.get("/courses/:slug", getCourseBySlug);
-
-//router.get("/courses/:id",getCourseById);
-router.get("/iscourseowner/:courseSlug", verifyToken, isCourseOwner);
-
 router.post("/courses", verifyToken, postCourse);
-router.post("/courses/:courseId/:linkId", verifyToken, postCourseByLinkId);
-router.put("/courses/:id", verifyToken, updateCourseById);
-router.put("/courses/:courseId/:linkId", verifyToken, updateCourseByLinkId);
-router.put(
-  "/courses/slug/:courseSlug/:linkSlug",
-  verifyToken,
-  updateCourseBySlugLinkId,
-);
-router.delete("/courses/:id", verifyToken, deleteCourseById);
+
+router.get("/tutorial/user", verifyToken, getAllUserTutorials);
+router.get("/tutorial/draft/:courseSlug/:linkSlug", verifyToken, getTutorialBySlug);
+router.get("/tutorial/:courseSlug/:linkSlug", getTutorialBySlug);
+
+router.post("/tutorial/:courseSlug", verifyToken, postTutorial);
+router.put("/tutorial/:courseSlug/:linkSlug", verifyToken, updateTutorialBySlug);
+router.delete("/tutorial/:courseSlug/:linkSlug", verifyToken, deleteTutorialBySlug);
 
 router.get("/download",async (req:Request,res:Response)=>{
   const s3Key=req.query.s3Key as string;

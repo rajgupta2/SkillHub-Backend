@@ -4,11 +4,11 @@
   "main": "/dist/src/app.js",
   "type": "module",
   "scripts": {
-    "prebuild": "npx prisma generate && echo prisma generated ",
+    "prebuild": "npx prisma generate && echo prisma client generated.",
     "build": "tsc",
     "dev": "tsx watch src/app.ts",
     "start": "node ./dist/src/app.js",
-    "updateSchema": "prisma db push"
+    "migrate": "npx prisma migrate deploy"
   },
   "keywords": [],
   "author": "",

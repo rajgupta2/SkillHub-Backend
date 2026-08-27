@@ -119,7 +119,7 @@ export const login=async (req: Request, res: Response) => {
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) return res.status(401).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ email: user.email, role: user.role}, JWT_SECRET, { expiresIn: "7d"});
+    const token = jwt.sign({ email: user.email, role: user.role, name:user.name}, JWT_SECRET, { expiresIn: "7d"});
 
     res.status(200).json({
       message: "Login successful. Redirecting ..",

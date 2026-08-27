@@ -1,56 +1,46 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose from "mongoose";
 
-export interface CourseDocument extends Document {
-  title: string;
-  description?: string;
-  slug: string,
-
-  links: {
-    linkId: string;
-    title: string;
-    order: number;
-    content: any; // editor JSON
-    slug:string;
-  }[];
-
-  owner: {
-    name: string;
-    email: string;
-  };
-
-  status: "draft" | "published";
-
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const CourseSchema = new Schema<CourseDocument>(
+const tutorialSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-    description: String,
-    slug: { type: String, required: true, unique: true, index: true },
-    links: [
-      {
-        linkId: String,
-        title: String,
-        order: Number,
-        content: Schema.Types.Mixed,
-        slug: String,
-      },
-    ],
-
-    owner: {
-      name: { type: String, required: true },
-      email: { type: String, required: true},
+    content: mongoose.Schema.Types.Mixed,
+    slug: { type: String, required: true }, //linkSlug
+    order: { type: Number, required: true },
+    courseSlug: {
+      type: String,
+      required: true,
     },
-
+    owner: {
+      type: {
+        name: { type: String, required: true },
+        email: { type: String, required: true },
+      },
+      required: true,
+    },
     status: {
       type: String,
-      enum: ["published","draft"],
+      enum: ["published", "draft"],
       default: "draft",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.model<CourseDocument>("Course", CourseSchema);
+tutorialSchema.index({ courseSlug: 1, slug: 1 }, { unique: true });
+export const Tutorials=mongoose.model("Tutorials",tutorialSchema);
+
+const CourseSchema = new mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    slug: { type: String, required: true, unique: true, index: true },
+    links: [{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Tutorials"
+    }],
+  },
+  { timestamps: true },
+);
+
+const Course=mongoose.model("CourseProd", CourseSchema);
+export default Course;

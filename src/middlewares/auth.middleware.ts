@@ -6,7 +6,7 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export interface AuthRequest extends Request {
-  user?: { email: string; role: string; };
+  user?: { email: string; role: string; name:string };
 }
 
 export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction) => {
@@ -16,7 +16,7 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
       return res.status(401).json({ message: "Unauthorized: No token in header." });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { email: string; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { email: string; role: string; name: string; };
     req.user = decoded;
     next();
   } catch (error) {
