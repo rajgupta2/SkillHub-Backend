@@ -226,3 +226,33 @@ export const updateTutorialBySlug = async (req: AuthRequest, res: Response) => {
     return res.status(500).json({ error: "Link update failed" });
   }
 };
+
+export const publishTutorialBySlug = async (req: AuthRequest, res: Response) => {
+  try {
+    const { courseSlug, linkSlug } = req.params;
+
+    if (!courseSlug || !linkSlug) {
+      return res.status(400).json({ error: "Invalid params" });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({ error: "You are unauthorized." });
+    }
+
+    const tutorial = await Tutorials.updateOne(
+      {
+        courseSlug,
+        slug: linkSlug,
+        "owner.email": req.user.email,
+      },
+      {
+        status:"published",
+      },
+    );
+
+    return res.status(200).json({ updated: true, tutorial });
+  } catch (error) {
+    console.error("Tutorial publishtion failed.", error);
+    return res.status(500).json({ error: "Tutorial publishtion failed." });
+  }
+};

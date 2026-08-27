@@ -56,6 +56,7 @@ import {
   getTutorialBySlug,
   postTutorial,
   updateTutorialBySlug,
+  publishTutorialBySlug,
 } from "../controllers/tutorials.js";
 
 const router = express.Router();
@@ -162,6 +163,7 @@ router.get("/tutorial/:courseSlug/:linkSlug", getTutorialBySlug);
 
 router.post("/tutorial/:courseSlug", verifyToken, postTutorial);
 router.put("/tutorial/:courseSlug/:linkSlug", verifyToken, updateTutorialBySlug);
+router.put("/publish/:courseSlug/:linkSlug", verifyToken, publishTutorialBySlug);
 router.delete("/tutorial/:courseSlug/:linkSlug", verifyToken, deleteTutorialBySlug);
 
 router.get("/download",async (req:Request,res:Response)=>{
